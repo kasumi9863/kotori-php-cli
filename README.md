@@ -25,13 +25,14 @@ Here are some examples:
 ```shell
 # initialize a pure Kotori.php project
 $ kotori init
-$ kotori init vendor/name
+$ kotori i vendor/name
 
 # modify config
 $ kotori config <set|set-array|remove|list|reset>
 
-# generate a pure controller named Hello
+# generate a pure controller/model named Hello
 $ kotori generate controller Hello
+$ kotori g model Hello
 
 # start a dev server on localhost:8000
 $ kotori serve --port 8000
