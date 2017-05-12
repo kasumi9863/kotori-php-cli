@@ -39,11 +39,11 @@ function echo_format($text, $color = false, $indentSize = 0, $newline = 1)
 
 /**
  * @package KotoriCLI
- * @version 0.0.1
+ * @version 0.0.3
  */
 class KotoriCLI
 {
-  const CLI_VERSION = '0.0.2';
+  const CLI_VERSION = '0.0.3';
 
   const ENTRY_TEMPLATE = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgZW50cnkgZmlsZSA6IGdlbmVyYXRlZCBieSBLb3RvcmkucGhwIENMSSBhdCB7dGltZXN0YW1wfQogKiBSZXF1aXJlIHRoZSBLb3RvcmkucGhwIHVzaW5nIENvbXBvc2VyJ3MgYXV0b2xvYWRlcgogKgogKiBJZiB5b3UgYXJlIG5vdCB1c2luZyBDb21wb3NlciwgeW91IG5lZWQgdG8gbG9hZCBLb3RvcmkucGhwIHdpdGggeW91ciBvd24KICogUFNSLTQgYXV0b2xvYWRlci4KICovCgpyZXF1aXJlICcuLi92ZW5kb3IvYXV0b2xvYWQucGhwJzsKcmVxdWlyZSAnLi4vY29uZmlnLnBocCc7CgokYXBwID0gbmV3IFxLb3RvcmlcQXBwKCRjb25maWcpOwokYXBwLT5ydW4oKTsK';
   const CONFIG_HEAD = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgLSBBcHAgY29uZmlnIDogZ2VuZXJhdGVkIGJ5IEtvdG9yaS5waHAgQ0xJCiAqLwoKcmVxdWlyZSBkaXJuYW1lKF9fRklMRV9fKSAuICcvYXBwL3JvdXRlcy5waHAnOyAgLy8gaW1wb3J0aW5nIHJvdXRlcwoKJGNvbmZpZyA9IA==';
