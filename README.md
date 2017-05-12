@@ -25,6 +25,7 @@ Here are some examples:
 ```shell
 # initialize a pure Kotori.php project
 $ kotori init
+$ kotori init vendor/name
 
 # modify config
 $ kotori config <set|set-array|remove|list|reset>
@@ -33,7 +34,7 @@ $ kotori config <set|set-array|remove|list|reset>
 $ kotori generate controller Hello
 
 # start a dev server on localhost:8000
-$ kotori serve --port=8000
+$ kotori serve --port 8000
 ```
 Other commands and detailed usage can be found by executing ```kotori help``` command.
 

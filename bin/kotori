@@ -1,4 +1,4 @@
-#! /usr/bin/php
+#! /usr/bin/env php
 <?php
 
 # Kotori.php CLI
@@ -43,7 +43,7 @@ function echo_format($text, $color = false, $indentSize = 0, $newline = 1)
  */
 class KotoriCLI
 {
-  const CLI_VERSION = '0.0.1';
+  const CLI_VERSION = '0.0.2';
 
   const ENTRY_TEMPLATE = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgZW50cnkgZmlsZSA6IGdlbmVyYXRlZCBieSBLb3RvcmkucGhwIENMSSBhdCB7dGltZXN0YW1wfQogKiBSZXF1aXJlIHRoZSBLb3RvcmkucGhwIHVzaW5nIENvbXBvc2VyJ3MgYXV0b2xvYWRlcgogKgogKiBJZiB5b3UgYXJlIG5vdCB1c2luZyBDb21wb3NlciwgeW91IG5lZWQgdG8gbG9hZCBLb3RvcmkucGhwIHdpdGggeW91ciBvd24KICogUFNSLTQgYXV0b2xvYWRlci4KICovCgpyZXF1aXJlICcuLi92ZW5kb3IvYXV0b2xvYWQucGhwJzsKcmVxdWlyZSAnLi4vY29uZmlnLnBocCc7CgokYXBwID0gbmV3IFxLb3RvcmlcQXBwKCRjb25maWcpOwokYXBwLT5ydW4oKTsK';
   const CONFIG_HEAD = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgLSBBcHAgY29uZmlnIDogZ2VuZXJhdGVkIGJ5IEtvdG9yaS5waHAgQ0xJCiAqLwoKcmVxdWlyZSBkaXJuYW1lKF9fRklMRV9fKSAuICcvYXBwL3JvdXRlcy5waHAnOyAgLy8gaW1wb3J0aW5nIHJvdXRlcwoKJGNvbmZpZyA9IA==';
@@ -382,10 +382,12 @@ class KotoriCLI
    */
   public function init()
   {
+    global $argv;
     $project = array(
       'type' => 'project',
       'license' => 'Apache'
     );
+
     // Welcome
     echo_format("Welcome to", false, false, 0);
     echo_format("Kotori.php CLI", 'gray', 1, 0);
@@ -396,9 +398,14 @@ class KotoriCLI
 
     // Collecting informations
     $name = '';
+    $flag = true;
     while (true) {
-      echo_format("Project name (vendor/project): ", 'cyan', 2, false);
-      $project['name'] = strtolower(trim(fgets(STDIN)));
+      if (isset($argv[2]) && $flag) {
+        $project['name'] = $argv[2];
+      } else {
+        echo_format("Project name (vendor/project): ", 'cyan', 2, false);
+        $project['name'] = strtolower(trim(fgets(STDIN)));
+      }
 
       if (!$this->checkAbility($project['name'], "/^[a-z0-9_\.\-]*\/[a-z0-9_\.\-]*/")) {
         echo_format("\nIllegal project name: ", 'red', false, false);
@@ -407,6 +414,8 @@ class KotoriCLI
           "Please try another. Here is a possible example: kasumi/my-awesome-project.",
           false, false, 2
         );
+
+        $flag = false;
       } else {
         preg_match("/^[a-zA-Z0-9_\.\-]*\/([a-z0-9_\.\-]*)/", $project['name'], $res);
 
@@ -416,7 +425,11 @@ class KotoriCLI
             "Project " . $res[1] . " already exists. Please try anthoer. ",
             false, false, 2
           );
+          $flag = false;
         } else {
+          if (isset($argv[2])) {
+            echo_format("Your project name will be: " . $project['name'], 'cyan', 2);
+          }
           $name = $res[1];
           break;
         }
@@ -517,11 +530,10 @@ class KotoriCLI
     $port = 2333;
 
     global $argv;
-    if (isset($argv[2]) && !empty($argv[2])) {
-      $tmp = str_replace('--port=', '', $argv[2]);
-      if (is_numeric($tmp)) {
-        $port = $tmp;
-      }
+
+    // custom port
+    if ($res = array_search('--port', $argv)) {
+      $port = $argv[$res+1];
     }
 
     if (!is_dir(getcwd() . DIRECTORY_SEPARATOR . 'app')
@@ -536,9 +548,9 @@ class KotoriCLI
     chdir(getcwd() . DIRECTORY_SEPARATOR . 'public');
 
     echo_format('[Kotori.php CLI] ', 'cyan', 0, false);
-    echo_format('Development server started at http://127.0.0.1:' . $port . ', press Ctrl + C to exit.');
+    echo_format('Development server started on http://127.0.0.1:' . $port . ', press Contrl+C to escape.');
     echo_format('[Kotori.php CLI] ', 'cyan', 0, false);
-    echo_format('Document root is at ' . getcwd());
+    echo_format('Document root is ' . getcwd());
     // start dev server
     exec("php -S 127.0.0.1:" . $port);
   }
@@ -561,8 +573,8 @@ class KotoriCLI
     echo_format("generate (gen, g)", 'cyan', 4, false);
     echo_format("Generate a pure controller/model/view file.", false, 12);
 
-    echo_format("init (i)", 'cyan', 4, false);
-    echo_format("Initialize a pure Kotori.php project.", false, 21);
+    echo_format("init (i) [vendor/name]", 'cyan', 4, false);
+    echo_format("Initialize a pure Kotori.php project.", false, 7);
 
     echo_format("serve (s) [--port=]", 'cyan', 4, false);
     echo_format("Start a development server at localhost.", false, 10);
