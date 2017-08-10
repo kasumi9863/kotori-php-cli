@@ -12,7 +12,7 @@ Make sure that you have added composer global vendor bin directory to your **PAT
 
 Let's take Linux for example:
 ```shell
-$ export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+$ export PATH="$HOME/.composer/vendor/bin:$PATH"
 ```
 
 ## Usage
@@ -36,6 +36,10 @@ $ kotori g model Hello
 
 # start a dev server on localhost:8000
 $ kotori serve --port 8000
+
+# import or export database
+$ kotori db export db_instance_name ./db.sql
+$ kotori db import db_instance_name ./db.sql
 ```
 Other commands and detailed usage can be found by executing ```kotori help``` command.
 

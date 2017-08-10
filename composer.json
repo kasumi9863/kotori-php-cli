@@ -1,7 +1,7 @@
 {
     "name": "kasumi/kotori-php-cli",
     "description": "A Command-Line-Interface tool for the PHP framework Kotori.php",
-    "version": "0.0.3",
+    "version": "0.1.0",
     "license": "Apache2",
     "bin": [
       "bin/kotori"

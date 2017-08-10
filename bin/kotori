@@ -1,13 +1,14 @@
-#! /usr/bin/env php
+#!/usr/bin/env php
 <?php
 
 # Kotori.php CLI
 # This is a Command-Line-Interface scaffold for the PHP framework Kotori.php.
 # Know more about the framework: https://github.com/kokororin/Kotori.php
 
-ini_set('timezone', 'Asia/Shanghai');
+ini_set('date.timezone', 'Asia/Shanghai');
+define('DS', DIRECTORY_SEPARATOR);
 
-function echo_format($text, $color = false, $indentSize = 0, $newline = 1)
+function disp($text, $color = false, $indentSize = 0, $newline = 1)
 {
   $colors = array(
     'black' => 30,
@@ -24,7 +25,7 @@ function echo_format($text, $color = false, $indentSize = 0, $newline = 1)
     echo str_repeat(" ", $indentSize);
   }
 
-  if (DIRECTORY_SEPARATOR == "\\"
+  if (DS == "\\"
     || $color == false
     || !isset($colors[$color])) {     // Windows
     echo $text;
@@ -43,7 +44,7 @@ function echo_format($text, $color = false, $indentSize = 0, $newline = 1)
  */
 class KotoriCLI
 {
-  const CLI_VERSION = '0.0.3';
+  const CLI_VERSION = '0.1.0';
 
   const ENTRY_TEMPLATE = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgZW50cnkgZmlsZSA6IGdlbmVyYXRlZCBieSBLb3RvcmkucGhwIENMSSBhdCB7dGltZXN0YW1wfQogKiBSZXF1aXJlIHRoZSBLb3RvcmkucGhwIHVzaW5nIENvbXBvc2VyJ3MgYXV0b2xvYWRlcgogKgogKiBJZiB5b3UgYXJlIG5vdCB1c2luZyBDb21wb3NlciwgeW91IG5lZWQgdG8gbG9hZCBLb3RvcmkucGhwIHdpdGggeW91ciBvd24KICogUFNSLTQgYXV0b2xvYWRlci4KICovCgpyZXF1aXJlICcuLi92ZW5kb3IvYXV0b2xvYWQucGhwJzsKcmVxdWlyZSAnLi4vY29uZmlnLnBocCc7CgokYXBwID0gbmV3IFxLb3RvcmlcQXBwKCRjb25maWcpOwokYXBwLT5ydW4oKTsK';
   const CONFIG_HEAD = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgLSBBcHAgY29uZmlnIDogZ2VuZXJhdGVkIGJ5IEtvdG9yaS5waHAgQ0xJCiAqLwoKcmVxdWlyZSBkaXJuYW1lKF9fRklMRV9fKSAuICcvYXBwL3JvdXRlcy5waHAnOyAgLy8gaW1wb3J0aW5nIHJvdXRlcwoKJGNvbmZpZyA9IA==';
@@ -88,7 +89,7 @@ class KotoriCLI
    */
   private function makePath($pathArray)
   {
-    return join(DIRECTORY_SEPARATOR, $pathArray);
+    return join(DS, $pathArray);
   }
 
   /**
@@ -119,6 +120,20 @@ class KotoriCLI
 			echo "[Environment] Kotori.php CLI tool needs writing & executing permission.\n";
 			exit;
 		}
+
+    if (!file_exists(getcwd() . DS . '.kotori')
+      && file_exists(getcwd() . DS . 'vendor')) {
+      mkdir(getcwd() . DS . '.kotori', 0755);
+    }
+  }
+
+  public function checkConfigFile()
+  {
+    $configPath = getcwd() . DS . 'config.php';
+    if (!file_exists($configPath)) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -131,20 +146,21 @@ class KotoriCLI
     if (!isset($argv[2]))
       $argv[2] = '';
 
-    $configPath = getcwd() . DIRECTORY_SEPARATOR . 'config.php';
-    if (!file_exists($configPath)) {
-      echo_format("[Error]", 'red', false, false);
-      echo_format("Can not find Kotori.php config file. You may not in a Kotori.php project directory.");
+    $configPath = getcwd() . DS . 'config.php';
+    if (!$this->checkConfigFile())
+    {
+      disp("[Error]", 'red', false, false);
+      disp("Can not find Kotori.php config file. You may not in a Kotori.php project directory.");
       exit;
     }
 
     require $configPath;
 
     if (!isset($config) && $argv[2] != 'reset') {
-      echo_format("[Error]", 'red', false, false);
-      echo_format("Can not read Kotori.php config file. The config file may be modified.");
-      echo_format("To fix this issue, modify your config variable name to be \$config, or run ", false, false, false);
-      echo_format("$ kotori config reset.", 'gray', false);
+      disp("[Error]", 'red', false, false);
+      disp("Can not read Kotori.php config file. The config file may be modified by someone.");
+      disp("To fix this issue, modify your config variable name to be \$config, or run ", false, false, false);
+      disp("$ kotori config reset.", 'gray', false);
       exit;
     }
 
@@ -152,8 +168,8 @@ class KotoriCLI
     {
       case 'help':
       default:
-        echo_format("\n  Usage: kotori config <set|remove|list|reset> <key> [value]");
-        echo_format("kotori config set-array <name> [key1=val1] [key2=val2]...", false, 9, 2);
+        disp("\n  Usage: kotori config <set|remove|list|reset> <key> [value]");
+        disp("kotori config set-array <name> [key1=val1] [key2=val2]...", false, 9, 2);
         exit;
         break;
 
@@ -168,7 +184,7 @@ class KotoriCLI
 
       case 'set':
         if (!isset($argv[3]) || !isset($argv[4])) {
-          echo_format("Usage: kotori config set <key> <value>");
+          disp("Usage: kotori config set <key> <value>");
           exit;
         }
         $config[$argv[3]] = $argv[4];
@@ -176,7 +192,7 @@ class KotoriCLI
 
       case 'remove':
         if (!isset($argv[3])) {
-          echo_format("Usage: kotori config remove <key>");
+          disp("Usage: kotori config remove <key>");
           exit;
         }
         unset($config[$argv[3]]);
@@ -188,8 +204,8 @@ class KotoriCLI
         break;
 
       case 'reset':
-        echo_format("[Warning] ", 'red', false, false);
-        echo_format("This operation will reset your config file! Really? (y/N) ", false, false, false);
+        disp("[Warning] ", 'red', false, false);
+        disp("This operation will reset your config file! Really? (y/N) ", false, false, false);
 
         $configFile = fopen($configPath, "w+");
         $confirm = strtolower(trim(fgets(STDIN)));
@@ -209,7 +225,7 @@ class KotoriCLI
     fwrite($configFile, $content);
     fclose($configFile);
 
-    echo_format("Config changed.");
+    disp("Config changed.");
   }
 
   /**
@@ -224,18 +240,18 @@ class KotoriCLI
       $argv[2] = '';
     }
 
-    if (!is_dir(getcwd() . DIRECTORY_SEPARATOR . 'app')
-    ||  !is_dir(getcwd() . DIRECTORY_SEPARATOR . 'public')) {
-      echo_format('[Error] ', 'red', false, false);
-      echo_format(
+    if (!is_dir(getcwd() . DS . 'app')
+    ||  !is_dir(getcwd() . DS . 'public')) {
+      disp('[Error] ', 'red', false, false);
+      disp(
         "Failed to generate anything. You are not in a Kotori.php project directory."
       );
       exit;
     }
 
     if (isset($argv[3]) && !$this->checkAbility($argv[3], '/^[a-zA-Z][a-zA-Z0-9_\/]*/')) {
-      echo_format("[Error] ", 'red', false, false);
-      echo_format(
+      disp("[Error] ", 'red', false, false);
+      disp(
         "Name is illegal. Your target name must begin with lower-case letter and not contain special chars excepts underline." .
         "Please try another."
       );
@@ -245,7 +261,7 @@ class KotoriCLI
     switch ($argv[2])
     {
       case 'controller':
-        $filePath = getcwd() . DIRECTORY_SEPARATOR . $this->makePath(array('app', 'controllers', $argv[3] . '.php'));
+        $filePath = getcwd() . DS . $this->makePath(array('app', 'controllers', $argv[3] . '.php'));
         $controllerName = $argv[3];
         if (strstr($argv[3], '/')) {
           $argv[3] = explode('/', $argv[3]);
@@ -256,8 +272,8 @@ class KotoriCLI
           foreach ($argv[3] as $val)
           {
             // create namespace directory
-            $path .= DIRECTORY_SEPARATOR . $val;
-            $target = getcwd() . DIRECTORY_SEPARATOR . $this->makePath(array('app', 'controllers')) . $path;
+            $path .= DS . $val;
+            $target = getcwd() . DS . $this->makePath(array('app', 'controllers')) . $path;
             if (!is_dir($target)) {
               mkdir($target, 0755);
             }
@@ -265,8 +281,8 @@ class KotoriCLI
         }
 
         if (file_exists($filePath)) {
-          echo_format("[Error] ", 'red', false, false);
-          echo_format("Controller \"{$controllerName}\" already exists. Aborting.");
+          disp("[Error] ", 'red', false, false);
+          disp("Controller \"{$controllerName}\" already exists. Aborting.");
           exit;
         }
 
@@ -283,12 +299,12 @@ class KotoriCLI
         fwrite($file, $content);
         fclose($file);
 
-        echo_format("[Success] ", 'green', false, false);
-        echo_format("Controller {$controllerName} created successfully.");
+        disp("[Success] ", 'green', false, false);
+        disp("Controller {$controllerName} created successfully.");
         break;
 
       case 'model':
-        $filePath = getcwd() . DIRECTORY_SEPARATOR . $this->makePath(array('app', 'models', $argv[3] . '.php'));
+        $filePath = getcwd() . DS . $this->makePath(array('app', 'models', $argv[3] . '.php'));
         $modelName = $argv[3];
         if (strstr($argv[3], '/')) {
           $argv[3] = explode('/', $argv[3]);
@@ -299,8 +315,8 @@ class KotoriCLI
           foreach ($argv[3] as $val)
           {
             // create namespace directory
-            $path .= DIRECTORY_SEPARATOR . $val;
-            $target = getcwd() . DIRECTORY_SEPARATOR . $this->makePath(array('app', 'models')) . $path;
+            $path .= DS . $val;
+            $target = getcwd() . DS . $this->makePath(array('app', 'models')) . $path;
             if (!is_dir($target)) {
               mkdir($target, 0755);
             }
@@ -308,8 +324,8 @@ class KotoriCLI
         }
 
         if (file_exists($filePath)) {
-          echo_format("[Error] ", 'red', false, false);
-          echo_format("Model \"{$modelName}\" already exists. Aborting.");
+          disp("[Error] ", 'red', false, false);
+          disp("Model \"{$modelName}\" already exists. Aborting.");
           exit;
         }
 
@@ -326,8 +342,8 @@ class KotoriCLI
         fwrite($file, $content);
         fclose($file);
 
-        echo_format("[Success] ", 'green', false, false);
-        echo_format("Model {$modelName} created successfully.");
+        disp("[Success] ", 'green', false, false);
+        disp("Model {$modelName} created successfully.");
         break;
 
       case 'view':
@@ -339,8 +355,8 @@ class KotoriCLI
         foreach ($argv[3] as $val)
         {
           // create namespace directory
-          $path .= DIRECTORY_SEPARATOR . $val;
-          $target = getcwd() . DIRECTORY_SEPARATOR . $this->makePath(array('app', 'views')) . $path;
+          $path .= DS . $val;
+          $target = getcwd() . DS . $this->makePath(array('app', 'views')) . $path;
           if (!is_dir($target)) {
             mkdir($target, 0755);
           }
@@ -348,12 +364,12 @@ class KotoriCLI
 
         $filePath = $this->makePath(array(
           getcwd(), 'app', 'views'
-        )) . DIRECTORY_SEPARATOR . $this->makePath($argv[3]) .
-        DIRECTORY_SEPARATOR . $viewName . '.html';
+        )) . DS . $this->makePath($argv[3]) .
+        DS . $viewName . '.html';
 
         if (file_exists($filePath)) {
-          echo_format("[Error] ", 'red', false, false);
-          echo_format("View \"{$viewName}\" already exists. Aborting.");
+          disp("[Error] ", 'red', false, false);
+          disp("View \"{$viewName}\" already exists. Aborting.");
           exit;
         }
 
@@ -364,12 +380,12 @@ class KotoriCLI
         fwrite($file, $content);
         fclose($file);
 
-        echo_format("[Success] ", 'green', false, false);
-        echo_format("View {$viewName} created successfully.");
+        disp("[Success] ", 'green', false, false);
+        disp("View {$viewName} created successfully.");
         break;
 
       default:
-        echo_format("Usage: kotori generate <controller|model|view> <name>");
+        disp("Usage: kotori generate <controller|model|view> <name>");
         exit;
         break;
 
@@ -389,9 +405,9 @@ class KotoriCLI
     );
 
     // Welcome
-    echo_format("Welcome to", false, false, 0);
-    echo_format("Kotori.php CLI", 'gray', 1, 0);
-    echo_format(
+    disp("Welcome to", false, false, 0);
+    disp("Kotori.php CLI", 'gray', 1, 0);
+    disp(
       "!\nThis CLI tool will guide you through initializing a pure Kotori.php project.",
       false, false, 2
     );
@@ -403,13 +419,13 @@ class KotoriCLI
       if (isset($argv[2]) && $flag) {
         $project['name'] = $argv[2];
       } else {
-        echo_format("Project name (vendor/project): ", 'cyan', 2, false);
+        disp("Project name (vendor/project): ", 'cyan', 2, false);
         $project['name'] = strtolower(trim(fgets(STDIN)));
       }
 
       if (!$this->checkAbility($project['name'], "/^[a-z0-9_\.\-]*\/[a-z0-9_\.\-]*/")) {
-        echo_format("\nIllegal project name: ", 'red', false, false);
-        echo_format(
+        disp("\nIllegal project name: ", 'red', false, false);
+        disp(
           "Project name must begin with lower case letters and not contain special signs. " .
           "Please try another. Here is a possible example: kasumi/my-awesome-project.",
           false, false, 2
@@ -419,16 +435,16 @@ class KotoriCLI
       } else {
         preg_match("/^[a-zA-Z0-9_\.\-]*\/([a-z0-9_\.\-]*)/", $project['name'], $res);
 
-        if (file_exists(getcwd() . DIRECTORY_SEPARATOR . '/' . $res[1])) {
-          echo_format("\nIllegal project name: ", 'red', false, false);
-          echo_format(
+        if (file_exists(getcwd() . DS . '/' . $res[1])) {
+          disp("\nIllegal project name: ", 'red', false, false);
+          disp(
             "Project " . $res[1] . " already exists. Please try anthoer. ",
             false, false, 2
           );
           $flag = false;
         } else {
           if (isset($argv[2])) {
-            echo_format("Your project name will be: " . $project['name'], 'cyan', 2);
+            disp("Your project name will be: " . $project['name'], 'cyan', 2);
           }
           $name = $res[1];
           break;
@@ -436,14 +452,14 @@ class KotoriCLI
       }
     } // Project name
 
-    echo_format(
+    disp(
       "Project description []: ",
       'cyan', 2, false
     );
     $project['description'] = trim(fgets(STDIN));   // Project description
 
     while (true) {
-      echo_format("Project author (someone <someone@example.com>): ", 'cyan', 2, false);
+      disp("Project author (someone <someone@example.com>): ", 'cyan', 2, false);
 
       $rawAuthor = trim(fgets(STDIN));
       preg_match("/^([a-zA-Z0-9\-_]*)\s*<([a-zA-Z0-9\._]*\@.*)>/", $rawAuthor, $res);
@@ -456,65 +472,65 @@ class KotoriCLI
         ));
         break;
       } else {
-        echo_format("\nIllegal project author. ", 'red', false, false);
-        echo_format(
+        disp("\nIllegal project author. ", 'red', false, false);
+        disp(
           "Author must be like this: someone <someone@example.com>. Please try again.",
           false, false, 2
         );
       } // else
     } // Project author
 
-    echo_format("\nInitializing " . $name . "...", 'magenta', false, 2);
-    mkdir(getcwd() . DIRECTORY_SEPARATOR . $name, 0755);
-    chdir(getcwd() . DIRECTORY_SEPARATOR . $name);  // change workspace
+    disp("\nInitializing " . $name . "...", 'magenta', false, 2);
+    mkdir(getcwd() . DS . $name, 0755);
+    chdir(getcwd() . DS . $name);  // change workspace
 
     /* create composer.json */
     $jsonFile = fopen("composer.json", "w+");
     $op = fwrite($jsonFile, json_encode($project, JSON_PRETTY_PRINT));
     if (!$op) {
-      echo_format("[Error]  ", 'red', false, false);
-      echo_format(
+      disp("[Error]  ", 'red', false, false);
+      disp(
         "Kotori.php CLI can not initialize your project, because Kotori.php CLI can not create composer.json file.\n" .
         "Please check the permission of your working directory, or try again."
       );
     }
 
     /* install dependencies */
-    echo_format("Resolving dependencies....", 'magenta', false, 2);
+    disp("Resolving dependencies....", 'magenta', false, 2);
     exec('composer require kokororin/kotori-php:dev-master');
 
     /* build file structure */
-    echo_format("Dependencies installed. Now building framework structure...");
-    mkdir(getcwd() . DIRECTORY_SEPARATOR . 'app', 0777);
-    $this->copydir(getcwd() . DIRECTORY_SEPARATOR . $this->makePath(array(
+    disp("Dependencies installed. Now building framework structure...");
+    mkdir(getcwd() . DS . 'app', 0777);
+    $this->copydir(getcwd() . DS . $this->makePath(array(
       'vendor', 'kokororin', 'kotori-php', 'example', 'app'
-    )), getcwd() . DIRECTORY_SEPARATOR . 'app');
-    mkdir(getcwd() . DIRECTORY_SEPARATOR . 'public', 0777);
+    )), getcwd() . DS . 'app');
+    mkdir(getcwd() . DS . 'public', 0777);
 
     /* create key files */
     // entry file
-    $index = fopen(getcwd() . DIRECTORY_SEPARATOR . $this->makePath(array('public', 'index.php')), "w+");
+    $index = fopen(getcwd() . DS . $this->makePath(array('public', 'index.php')), "w+");
     fwrite($index, str_replace('{timestamp}', date('Y-m-d H:i:s'), base64_decode(self::ENTRY_TEMPLATE)));
     fclose($index);
 
     // config file
-    $config = fopen(getcwd() . DIRECTORY_SEPARATOR . 'config.php', "w+");
+    $config = fopen(getcwd() . DS . 'config.php', "w+");
     fwrite($config, base64_decode(self::CONFIG_TEMPLATE));
     fclose($config);
 
     // routes file
-    $routes = fopen(getcwd() . DIRECTORY_SEPARATOR . $this->makePath(array('app', 'routes.php')), "w+");
+    $routes = fopen(getcwd() . DS . $this->makePath(array('app', 'routes.php')), "w+");
     fwrite($routes, base64_decode(self::ROUTE_TEMPLATE));
     fclose($routes);
 
     /* success */
-    echo_format("\n[Success] ", 'green', false, false);
-    echo_format(
+    disp("\n[Success] ", 'green', false, false);
+    disp(
       "Building for project " . $name . " completed.\n" .
       "To start your development server, run the commands below:",
       false, false, 2
     );
-    echo_format(
+    disp(
       "  $ cd " . $name . " \n" .
       "  $ kotori serve",
       'yellow', false, 2
@@ -536,23 +552,192 @@ class KotoriCLI
       $port = $argv[$res+1];
     }
 
-    if (!is_dir(getcwd() . DIRECTORY_SEPARATOR . 'app')
-    ||  !is_dir(getcwd() . DIRECTORY_SEPARATOR . 'public')) {
-      echo_format('[Error] ', 'red', false, false);
-      echo_format(
+    if (!is_dir(getcwd() . DS . 'app')
+    ||  !is_dir(getcwd() . DS . 'public')) {
+      disp('[Error] ', 'red', false, false);
+      disp(
         "Failed to start Kotori dev server. You are not in a Kotori.php project directory."
       );
       exit;
     }
 
-    chdir(getcwd() . DIRECTORY_SEPARATOR . 'public');
+    chdir(getcwd() . DS . 'public');
 
-    echo_format('[Kotori.php CLI] ', 'cyan', 0, false);
-    echo_format('Development server started on http://127.0.0.1:' . $port . ', press Contrl+C to escape.');
-    echo_format('[Kotori.php CLI] ', 'cyan', 0, false);
-    echo_format('Document root is ' . getcwd());
+    disp('[Kotori.php CLI] ', 'cyan', 0, false);
+    disp('Development server started on http://127.0.0.1:' . $port . ', press Contrl+C to escape.');
+    disp('[Kotori.php CLI] ', 'cyan', 0, false);
+    disp('Document root is ' . getcwd());
     // start dev server
     exec("php -S 127.0.0.1:" . $port);
+  }
+
+  /**
+   * database operations
+   * @return void
+   */
+  public function db()
+  {
+    // read database config
+    $state = $this->checkConfigFile();
+    if (!$state) {
+      disp('[Error] ', 'red', 0, false);
+      disp('Can not find Kotori.php config file. Aborting.');
+      exit;
+    }
+
+    require getcwd() . DS . 'config.php';
+    if (!isset($config['DB']) || !is_array($config['DB'])) {
+      disp('[Error] ', 'red', 0, false);
+      disp('Can not read database config. Aborting.');
+      exit;
+    }
+
+    $config['APP_PATH'] = getcwd() . DS . 'app';
+
+    require getcwd() . DS . $this->makePath(array('vendor', 'autoload.php'));
+    
+    global $argv;
+    if (!isset($argv[2]) || !isset($argv[3])) {
+      disp('This is an experimental feature. Please ensure that you have a valid backup.');
+      disp('Usage: kotori db <import|export> <dbname> [path]');
+      exit;
+    }
+
+    if (!isset($config['DB'][$argv[3]])) {
+      disp('[Error] ', 'red', 0, false);
+      disp('No database instance named ' . $argv[3] . '.');
+      exit;
+    }
+    $db = $config['DB'][$argv[3]];
+
+    $medoo = new \Medoo\Medoo(array(
+      'database_type' => $db['TYPE'],
+      'database_name' => $db['NAME'],
+      'server' => $db['HOST'],
+      'username' => $db['USER'],
+      'password' => $db['PWD'],
+      'charset' => isset($db['CHARSET']) ? $db['CHARSET'] : 'utf8',
+      'port' => isset($db['PORT']) ? $db['PORT'] : 3306,
+    ));
+
+    $medoo->query("SET SQL_MODE=''");
+
+    switch ($argv[2])
+    {
+      case 'export':
+        $path = getcwd() . DS . $this->makePath(array(
+          '.kotori', $argv[3] . '_dump_' . date('YmdHis') . '.sql'
+        ));
+        if (isset($argv[4]))
+        {
+          $path = $argv[4];
+        }
+        $this->exportDatabase($medoo, $db['NAME'], $path);
+        break;
+
+      case 'import':
+        $newDbPath = $argv[4];
+        if (!file_exists($newDbPath)) {
+          disp('[Error] ', 'red', 0, false);
+          disp('No sql backup file named ' . $newDbPath);
+          exit;
+        }
+
+        $path = getcwd() . DS . $this->makePath(array(
+          '.kotori', $argv[3] . '_import_backup_' . date('YmdHis') . '.sql'
+        ));
+        
+        disp('[Warning] ', 'yellow', 0, false);
+        disp('Before your import operation, Kotori.php CLI will backup your database.');
+        $this->exportDatabase($medoo, $db['NAME'], $path);
+
+        sleep(1.5);
+
+        disp("\n[Processing] ", 'cyan', 0, false);
+        disp('Importing ' . $argv[4] . '...');
+        
+        $raw = file_get_contents($newDbPath);
+        $raw = preg_replace("/\r\n/", "\n", $raw);
+        $queries = explode(";\n", $raw);
+        unset($queries[count($queries) - 1]);
+
+        foreach ($queries as $val)
+        {
+          $val = preg_replace("/,\n/", ", ", $val);
+          $sth = $medoo->pdo->prepare($val);
+          $medoo->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+
+          try {
+            $sth->execute();            
+          } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage() . "\n";
+            echo "While executing query: " . mb_substr($val, 0, 500) . "...\n\n";
+          }
+        }
+        
+        disp('[Success] ', 'green', 0, false);
+        disp('SQL file has been imported.');
+        break;
+    }
+  }
+
+  /**
+   * make an export of database
+   * @param  Object $db     
+   * @param  String $dbName 
+   * @param  String $path   
+   * @return void         
+   */
+  public function exportDatabase($db, $dbName, $path)
+  {
+    $tables = $db->query('SHOW TABLES')->fetchAll();
+    $file = fopen($path, 'w+');
+    $content = "";
+    $content .= "-- Database " . $dbName . " dumped by Kotori.php CLI at " . date('YmdHis') . "\n\n";
+    foreach ($tables as $key => $val)
+    {
+      disp("[Processing] ", 'cyan', 0, false);
+      disp("Dumping $val[0] ...");
+      // Create table structure
+      $content .= "DROP TABLE IF EXISTS " . $val[0] . ";\n";
+      $structure = $db->query('SHOW CREATE TABLE `' . $val[0] . '`')->fetchAll()[0][1];
+      $content .= str_replace('"', '`', $structure) . ";\n";
+
+      $data = $db->pdo->query('SELECT * FROM `' . $val[0] . '`')->fetchAll(PDO::FETCH_ASSOC);
+      $cols = array();
+      if (!isset($data[0]))
+      {
+        $content .= "\n";
+        continue;
+      }
+
+      // get cols key;
+      foreach ($data[0] as $dkey => $dval)
+      {
+        array_push($cols, $dkey);
+      }
+
+      $insert = "INSERT INTO `" . $val[0] . "` (`" . implode('`, `', $cols) . "`) VALUES ";
+      // insert
+      for ($i = 0; $i < count($data); $i++)
+      {
+        foreach ($data[$i] as $colkey => $colvalue)
+        {
+          $data[$i][$colkey] = '"' . preg_replace('/\r|\r\n|\n/', "\\n", addslashes($colvalue)) . '"';
+        }
+
+        $insert .= '(' . implode(', ', $data[$i]);
+
+        if ($i != count($data) - 1)
+          $insert .=  "),\n";
+        else
+          $insert .= ");\n";
+      }
+      $content .= $insert . "\n";
+    }
+    fwrite($file, $content);
+    disp('[Success] ', 'green', 0, false);
+    disp("Dump complete, no error encounted. \nSQL file saved at " . $path);
   }
 
   /**
@@ -562,25 +747,28 @@ class KotoriCLI
   public function showHelp()
   {
     echo "\n";
-    echo_format("Kotori.php CLI: A scaffold CLI tool for the Kotori.php framework", false, 2);
-    echo_format("Usage: kotori command [arg1] [arg2]...", false, 2, 2);
+    disp("Kotori.php CLI: A scaffold CLI tool for the Kotori.php framework", false, 2);
+    disp("Usage: kotori command [arg1] [arg2]...", false, 2, 2);
 
-    echo_format("Avaliable Commands: ", 'green', 2);
+    disp("Avaliable Commands: ", 'green', 2);
 
-    echo_format("config (conf, c)", 'cyan', 4, false);
-    echo_format("Modify config of a Kotori.php project", false, 13);
+    disp("config (conf, c)", 'cyan', 4, false);
+    disp("Modify config of a Kotori.php project", false, 13);
 
-    echo_format("generate (gen, g)", 'cyan', 4, false);
-    echo_format("Generate a pure controller/model/view file.", false, 12);
+    disp("db (d)", 'cyan', 4, false);
+    disp("Import or export project database", false, 23);    
 
-    echo_format("init (i) [vendor/name]", 'cyan', 4, false);
-    echo_format("Initialize a pure Kotori.php project.", false, 7);
+    disp("generate (gen, g)", 'cyan', 4, false);
+    disp("Generate a pure controller/model/view file.", false, 12);
 
-    echo_format("serve (s) [--port=]", 'cyan', 4, false);
-    echo_format("Start a development server at localhost.", false, 10);
+    disp("init (i) [vendor/name]", 'cyan', 4, false);
+    disp("Initialize a pure Kotori.php project.", false, 7);
 
-    echo_format("version (v, --version)", 'cyan', 4, false);
-    echo_format("Show CLI tool version.", false, 7);
+    disp("serve (s) [--port=]", 'cyan', 4, false);
+    disp("Start a development server at localhost.", false, 10);
+
+    disp("version (v, --version)", 'cyan', 4, false);
+    disp("Show CLI tool version.", false, 7);
 
     echo "\n";
   }
@@ -592,7 +780,7 @@ class KotoriCLI
   public function showVersion()
   {
     $text = "Kotori.php CLI version " . self::CLI_VERSION;
-    echo_format($text, 'gray');
+    disp($text, 'gray');
   }
 }
 
@@ -631,6 +819,11 @@ switch ($argv[1])
     $cli->generate();
     break;
 
+  case 'd':
+  case 'db':
+    $cli->db();
+    break;
+
   case 's':
   case 'serve':
     $cli->serve();
@@ -643,4 +836,4 @@ switch ($argv[1])
 }
 
 $used = (time() - $start);
-echo_format("Operation finished in " .  $used . 's.');
+disp("Operation finished in " .  $used . 's.');
