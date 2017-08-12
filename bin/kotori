@@ -40,16 +40,16 @@ function disp($text, $color = false, $indentSize = 0, $newline = 1)
 
 /**
  * @package KotoriCLI
- * @version 0.0.3
+ * @version 0.1.1
  */
 class KotoriCLI
 {
-  const CLI_VERSION = '0.1.0';
+  const CLI_VERSION = '0.1.1';
 
   const ENTRY_TEMPLATE = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgZW50cnkgZmlsZSA6IGdlbmVyYXRlZCBieSBLb3RvcmkucGhwIENMSSBhdCB7dGltZXN0YW1wfQogKiBSZXF1aXJlIHRoZSBLb3RvcmkucGhwIHVzaW5nIENvbXBvc2VyJ3MgYXV0b2xvYWRlcgogKgogKiBJZiB5b3UgYXJlIG5vdCB1c2luZyBDb21wb3NlciwgeW91IG5lZWQgdG8gbG9hZCBLb3RvcmkucGhwIHdpdGggeW91ciBvd24KICogUFNSLTQgYXV0b2xvYWRlci4KICovCgpyZXF1aXJlICcuLi92ZW5kb3IvYXV0b2xvYWQucGhwJzsKcmVxdWlyZSAnLi4vY29uZmlnLnBocCc7CgokYXBwID0gbmV3IFxLb3RvcmlcQXBwKCRjb25maWcpOwokYXBwLT5ydW4oKTsK';
   const CONFIG_HEAD = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgLSBBcHAgY29uZmlnIDogZ2VuZXJhdGVkIGJ5IEtvdG9yaS5waHAgQ0xJCiAqLwoKcmVxdWlyZSBkaXJuYW1lKF9fRklMRV9fKSAuICcvYXBwL3JvdXRlcy5waHAnOyAgLy8gaW1wb3J0aW5nIHJvdXRlcwoKJGNvbmZpZyA9IA==';
-  const CONFIG_TEMPLATE = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgLSBBcHAgY29uZmlnIDogZ2VuZXJhdGVkIGJ5IEtvdG9yaS5waHAgQ0xJCiAqLwoKcmVxdWlyZSBkaXJuYW1lKF9fRklMRV9fKSAuICcvYXBwL3JvdXRlcy5waHAnOyAgLy8gaW1wb3J0aW5nIHJvdXRlcwoKJGNvbmZpZyA9IGFycmF5KAogICAgJ0FQUF9ERUJVRycgPT4gdHJ1ZSwgICAgICAgLy8gc2V0IHRoaXMgdG8gJ2ZhbHNlJyB3aGVuIGluIHByb2R1Y3Rpb24KICAgICdBUFBfUEFUSCcgID0+ICcuLi9hcHAnLAogICAgJ1VSTF9NT0RFJyAgPT4gJ1BBVEhfSU5GTycsCiAgICAnVVJMX1JPVVRFJyA9PiAkcm91dGVzCik7Cg==';
-  const ROUTE_HEAD = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgLSBBcHAgcm91dGVzIDogZ2VuZXJhdGVkIGJ5IEtvdG9yaS5waHAgdG9vbAogKi8KCiRyb3V0ZXMgPSAK';
+  const CONFIG_TEMPLATE = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgLSBBcHAgY29uZmlnIDogZ2VuZXJhdGVkIGJ5IEtvdG9yaS5waHAgQ0xJCiAqLwoKcmVxdWlyZSBkaXJuYW1lKF9fRklMRV9fKSAuICcvYXBwL3JvdXRlcy5waHAnOyAgLy8gaW1wb3J0aW5nIHJvdXRlcwoKJGNvbmZpZyA9IGFycmF5KAogICAgJ2FwcF9kZWJ1ZycgPT4gdHJ1ZSwgICAgICAgLy8gc2V0IHRoaXMgdG8gJ2ZhbHNlJyB3aGVuIGluIHByb2R1Y3Rpb24KICAgICdhcHBfcGF0aCcgID0+ICcuLi9hcHAnLAogICAgJ3VybF9tb2RlJyAgPT4gJ1BBVEhfSU5GTycsCiAgICAndXJsX3JvdXRlJyA9PiAkcm91dGVzCik7Cg==';
+  const ROUTE_HEAD = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgLSBBcHAgcm91dGVzIDogZ2VuZXJhdGVkIGJ5IEtvdG9yaS5waHAgQ0xJCiAqLwoKJHJvdXRlcyA9IAo=';
   const ROUTE_TEMPLATE = 'PD9waHAKLyoqCiAqIEtvdG9yaS5waHAgLSBBcHAgcm91dGVzIDogZ2VuZXJhdGVkIGJ5IEtvdG9yaS5waHAgdG9vbAogKi8KCiRyb3V0ZXMgPSBhcnJheSgKICAgICcvJyA9PiAnSGVsbG8vaW5kZXgnCQkJCS8vIHJlZGlyZWN0IHRvIGBcYXBwXGNvbnRyb2xsZXJzXEhlbGxvXGluZGV4KClgCik7Cg==';
 
   const CONTROLLER_TEMPLATE = 'PD9waHAKLyoqCiAqIHtDb250cm9sbGVyTmFtZX0gQ29udHJvbGxlcgogKiBHZW5lcmF0ZWQgYnkgS290b3JpLnBocCBDTEkgYXQge3RpbWVzdGFtcH0KICovCm5hbWVzcGFjZSBhcHBcY29udHJvbGxlcnN7bmFtZXNwYWNlfTsKCnVzZSBLb3RvcmlcQ29yZVxDb250cm9sbGVyOwoKY2xhc3Mge0NvbnRyb2xsZXJOYW1lfSBleHRlbmRzIENvbnRyb2xsZXIKewogIHB1YmxpYyBmdW5jdGlvbiBfX2NvbnN0cnVjdCgpCiAgewogICAgcGFyZW50OjpfX2NvbnN0cnVjdCgpOwogIH0KCiAgLy8gYmVnaW4geW91ciBhd2Vzb21lIGNvZGUhCn0K';
@@ -564,11 +564,11 @@ class KotoriCLI
     chdir(getcwd() . DS . 'public');
 
     disp('[Kotori.php CLI] ', 'cyan', 0, false);
-    disp('Development server started on http://127.0.0.1:' . $port . ', press Contrl+C to escape.');
+    disp('Development server started on http://localhost:' . $port . ', press Contrl+C to escape.');
     disp('[Kotori.php CLI] ', 'cyan', 0, false);
     disp('Document root is ' . getcwd());
     // start dev server
-    exec("php -S 127.0.0.1:" . $port);
+    exec("php -S 0.0.0.0:" . $port);
   }
 
   /**
@@ -598,7 +598,7 @@ class KotoriCLI
     
     global $argv;
     if (!isset($argv[2]) || !isset($argv[3])) {
-      disp('This is an experimental feature. Please ensure that you have a valid backup.');
+      disp('This is an experimental feature and supports MySQL only. Please ensure that you have a valid backup.');
       disp('Usage: kotori db <import|export> <dbname> [path]');
       exit;
     }
